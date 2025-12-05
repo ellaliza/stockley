@@ -1,0 +1,77 @@
+@import './base.css';
+
+#app {
+  margin: 0 auto;
+  padding: 0;
+  font-weight: normal;
+  min-height: 100svh;
+}
+
+:root {
+  /* BRAND COLORS */
+  --stockley-deep-blue: #1a4f8b;
+  --stockley-teal: #3d99a9;
+  --professional-grey: #5e6a7b;
+  --pure-white: #ffffff;
+
+  /* DEEP BLUE TINTS */
+  --deep-blue-10: #2e6aaa;
+  --deep-blue-20: #4b82bc;
+  --deep-blue-40: #7aa5d0;
+  --deep-blue-60: #a8c8e3;
+  --deep-blue-80: #d6e6f4;
+
+  /* DEEP BLUE SHADES */
+  --deep-blue-shade-10: #164574;
+  --deep-blue-shade-20: #123a5e;
+  --deep-blue-shade-40: #0d2a41;
+  --deep-blue-shade-60: #081b27;
+
+  /* TEAL TINTS */
+  --teal-10: #55aab9;
+  --teal-20: #70bac7;
+  --teal-40: #9cd3de;
+  --teal-60: #c7e9ef;
+  --teal-80: #e7f7f9;
+
+  /* TEAL SHADES */
+  --teal-shade-10: #358694;
+  --teal-shade-20: #2d737f;
+  --teal-shade-40: #20515a;
+  --teal-shade-60: #133037;
+
+  /* GREY TINTS */
+  --grey-10: #728090;
+  --grey-20: #8a96a3;
+  --grey-40: #b1bbc4;
+  --grey-60: #d5dbe1;
+  --grey-80: #eef0f3;
+
+  /* GREY SHADES */
+  --grey-shade-10: #525d6c;
+  --grey-shade-20: #474f5d;
+  --grey-shade-40: #313740;
+  --grey-shade-60: #1c1f23;
+
+  /* WHITE SCALE */
+  --white-10: #fafafa;
+  --white-20: #f5f5f5;
+  --white-30: #efefef;
+  --white-shade-10: #e6e6e6;
+  --white-shade-20: #dcdcdc;
+  --white-shade-30: #d0d0d0;
+
+  /* UI Utility */
+  --background-accent: var(--deep-blue-80);
+  --accent-blue: var(--deep-blue-40);
+  --light: var(--white-20);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--grey-shade-20);
+}
+
+a{
+  text-decoration: none;
+  color: inherit;
+}
