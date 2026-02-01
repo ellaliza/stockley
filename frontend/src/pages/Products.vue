@@ -1,48 +1,89 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
 import axios from 'axios';
-import type { Product } from '../types';
-
+import type { Product, StockFilter } from '@/types';
 import { axiosInstance } from '@/api';
+import { Icon } from '@iconify/vue';
+import ProductListTable from '@/components/ProductListTable.vue';
+import AddProductModal from '@/components/AddProductModal.vue';
+import type { NewProduct } from '@/types';
+import ProductModal from '@/components/ProductModal.vue';
 
 
+const stockStatusFilters:StockFilter[] = [
+    {
+        label: "In Stock",
+        value: 2
+    },
+    {
+        label: "Low Stock",
+        value: 1
+    },
+    {
+        label: "Out of Stock",
+        value: 0
+    },
+]
+
+const stockSortOptions:StockFilter[] = [
+    {
+        label: "Product Name",
+        value: "productName"
+    },
+    {
+        label: "Current Stock",
+        value: "currentStock"
+    },
+    {
+        label: "Product ID",
+        value: "productId"
+    },
+]
+const emit = defineEmits<{
+  (e: 'emitPageTitle', value: string): void
+}>()
+onMounted(
+    () => {
+        emit('emitPageTitle', "Products");
+        getProducts();
+    }
+)
+
+const showAddProductModal = ref<boolean>(false)
+const showProductModal = ref<boolean>(false)
+// --------------------------------------------------
 const productId = ref<string>("");
 const products = ref<Product[]>();
 const product = ref<Product>()
 const newStock = ref<number>()
 const quantityToSell = ref<number>()
 
-const newProduct = reactive<Product>({
-    productId: 0,
-    productName: "",
-    initialStock: 0,
-    currentStock: 0
-})
 
 const getProduct = async () => {
     const response = await axiosInstance.get(`/products/${productId.value}`);
     console.log(response.data);
     product.value = response.data
 }
-const createProduct = async ()=>{
+const createProduct = async (newProduct: NewProduct)=>{
     if (
-    !newProduct.productId ||
     newProduct.productName.trim() === "" ||
-    newProduct.initialStock === null ||
+    newProduct.minimumStockLevel === null ||
     newProduct.currentStock === null
 ) {
     alert("Please fill all details!")
     return
 }
-
-
-    const response = await axiosInstance.post('/products/', newProduct);
+    let product = {...newProduct, initialStock: newProduct.currentStock}
+    
+    const response = await axiosInstance.post('/products/', product);
     if (response.status === 200 || response.status === 201){
-        alert("created");
-        newProduct.productName = ""
+        
+        newProduct.productName = "";
         newProduct.currentStock = 0;
-        newProduct.initialStock = 0;
         newProduct.productId = 0;
+        showAddProductModal.value = false;
+        getProducts()
+
     }
 }
 const restockProduct = async () => {
@@ -52,9 +93,8 @@ const restockProduct = async () => {
         alert("Added stock must be greater than 0");
         return
     }
-    const response = await axiosInstance.get('/products/restock/'+productId.value, {params: {quantity: newStock.value}});
-    alert("success!")
-    getProduct();
+    const response = await axiosInstance.post('/products/restock/'+productId.value, {params: {quantity: newStock.value}});
+    getProducts();
     newStock.value = 0
 
 }
@@ -73,12 +113,81 @@ const stockOutProduct = async () => {
 const getProducts = async () => {
     const response = await axiosInstance.get(`/products/`);
     products.value = response.data
+    console.log(products.value)
+}
+const handleProductUpdate = async (updatedProduct: Product) => {
+    try{
+        productId.value = updatedProduct.productId
+        newStock.value = 20
+        restockProduct()
+    }catch(error){
+        console.log("An error occured: ", error)
+    }
+}
+const showProduct = async (productId: number) => {
+    showProductModal.value = true;
+    const selectedProduct = products.value?.filter(prod => prod.productId === productId)[0]
+    product.value = selectedProduct;
 }
 </script>
 
 <template>
     <h1>Products</h1>
+    <small>Manage your catalog, stock levels and alerts </small>
+    <div class="filter-search">
+        <div class="search">
+            <Icon icon="iconamoon:search-light" width="1.2em" height="1.2em" style="color: var(--grey-10);" />
+            <input type="text" class="search-input" placeholder="Search for a product"/>
+        </div>
+        <div class="filters"> 
+    
+            <div class="select-container">
+                <select name="status-filter">
+                    <option value="all" name="status-filter">Filter By</option>
+                    <option v-for="filter in stockStatusFilters" :value="filter.value" name="status-filter">{{ filter.label }}</option>
+                </select>
+            </div>
+            
+            
+        </div>
+        <div class="sort">
+            
+            <div class="select-container">
+                <select name="sort">
+                    <option value="none" name="sort">Sort By</option>
+                    <option v-for="value in stockSortOptions" :value="value.value" name="sort">{{ value.label }}</option>
+                </select>
+            </div>
+        </div>
+        
+    </div>
     <div class="action">
+        <button @click="showAddProductModal = true">
+            <Icon icon="mingcute:add-fill" width="1.2em" height="1.2em" /><span>Add Product</span> 
+        </button>
+    </div>
+    <div v-if="Array.isArray(products)">
+        <ProductListTable 
+        :products="products" 
+        @refresh="getProducts"
+        @productClick="showProduct"
+        />
+    </div>
+    <AddProductModal 
+    :show="showAddProductModal" 
+    v-if="showAddProductModal" 
+    @close="showAddProductModal = false"
+    @addProduct="createProduct"
+    />
+    <ProductModal 
+    :show="showProductModal" 
+    v-if="showProductModal"
+    @close="showProductModal = false"
+    :product="product"
+    @update="handleProductUpdate"
+
+    />
+    <!-- <div class="action">
         <h3>View a product</h3>
         <div class="field">
             <span>Product ID:</span> 
@@ -175,7 +284,7 @@ const getProducts = async () => {
             
         </div>
         
-    </div>
+    </div> -->
 </template>
 
 <style scoped>
@@ -185,18 +294,21 @@ const getProducts = async () => {
     padding: 0.5rem 0;
 }
 .action{
-    padding: 1rem;
-    border: 1px solid cadetblue;
-    margin: 0.5rem 0;
+   margin-bottom: rem;
 }
 .action > button{
-    content: "Finish";
-    border: 1px solid;
-    padding: 0.3rem;
+    padding: 0.3rem 0.6rem;
     border-radius: 0.5rem;
     cursor: pointer;
-    background-color: cadetblue;
-    
+    border: none;
+    background-color: var(--stockley-deep-blue);
+    color: var(--white-30);
+    vertical-align: middle;
+    display: grid;
+    align-items: center;
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem;
+    float: right;
 }
 .table-head > p {
     font-weight: bold;
@@ -210,5 +322,48 @@ const getProducts = async () => {
 
 .table-head > p:not(:last-child), .table-row > p:not(:last-child){
     border-right: solid 1px black;
+}
+/* ------------------------- */
+.filter-search{
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+}
+.search{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--grey-40);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+.search-input{
+    border: none;
+    flex-grow: 1;
+    background-color: inherit;
+    color: var(--grey-shade-40);
+}
+.search-input:focus, .filter-search select:focus{
+    outline: none;
+}
+small{
+    font-weight: 500;
+}
+.filters, .sort{
+    display: grid;
+}
+.filter-search select{
+    border: none;
+    background-color: inherit;
+    width: 100%;
+    color: var(--grey-shade-40);
+}
+.filter-search .select-container{
+    /* border: 1px solid var(--grey-40); */
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+}
+.filter-search{
+    padding: 1rem 0;
 }
 </style>

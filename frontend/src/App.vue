@@ -3,23 +3,25 @@ import {ref} from 'vue';
 const name = ref("Ella");
 const emoji = ref("😃");
 import HeaderComponent from '@/components/HeaderComponent.vue';
-import Home from '@/components/Home.vue';
-import Products from '@/components/Products.vue';
-import Inventory from './components/Inventory.vue';
 
-import { RouterView } from 'vue-router';
+import { RouterView, useRoute, useRouter } from 'vue-router';
 import Sidebar from './components/Sidebar.vue';
+const pageTitle = ref("");
+const setPageTitle = (val: string) => pageTitle.value = val;
+
+const router = useRouter()
+const route = useRoute()
 
 </script>
 
 <template>
   <div class="app-shell">
-    <HeaderComponent />
-
+    <Sidebar />
+  
     <div class="content">
-      <Sidebar />
+      <HeaderComponent :pageTitle="pageTitle"/>
       <main>
-        <RouterView />
+        <RouterView @emitPageTitle="setPageTitle"/>
       </main>
     </div>
   </div>
@@ -27,18 +29,21 @@ import Sidebar from './components/Sidebar.vue';
 
 <style scoped>
 .content{
-  display: flex;
-  flex-grow: 1;
+  display: grid;
+  grid-template-rows: 3rem auto;
+  
+  
 }
 .app-shell{
   height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 main{
   flex: 1;
+  flex-grow: 2;
   overflow-y: auto;
-  padding: 1rem;
-  background-color: var(--grey-80);
+  padding: 0.2rem 1rem;
+  background-color: var(--background);
 }
 </style>

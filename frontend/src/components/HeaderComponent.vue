@@ -1,13 +1,29 @@
-<script setup>
-import logo from '../assets/stockley_logo_only.png';
-import logo_text from '../assets/stockley_text.png';
-import { Icon } from '@iconify/vue';
+<script setup lang="ts">
+import { ref } from 'vue'
+import logo from '../assets/stockley_logo_only.png'
+import logo_text from '../assets/stockley_text.png'
+import { Icon } from '@iconify/vue'
+
+interface HeaderProps {
+  pageTitle?: string
+}
+
+defineProps<HeaderProps>()
 </script>
+
 
 <template>
     <header>
-        <div class="logo" :style="{ backgroundImage: `url(${logo})` }"></div>
-        <div class="brand-text" :style="{ backgroundImage: `url(${logo_text})` }"></div>
+        <div class="page" >{{ pageTitle ? pageTitle : "Dashboard"}}</div>
+
+        <div class="search">
+
+        </div>
+        <div class="options">
+            <Icon icon="mingcute:notification-line" />
+            <!-- <Icon icon="ic:twotone-mode-night" width="18" height="18" /> -->
+            <div class="user-initial">G</div>
+        </div>
         <div class="user">
             <div class="user-initial">
                 G
@@ -25,8 +41,8 @@ import { Icon } from '@iconify/vue';
 
 <style scoped>
 header {
-    padding: 1rem;
-    background-color: var(--white-10);
+    padding: 0.5rem 1rem;
+    background-color: var(--pure-white );
     display: grid;
     grid-template-columns: repeat(24, 1fr);
     align-items: center;
@@ -34,7 +50,18 @@ header {
     top: 0%;
     left: 0%;
 }
-
+.page{
+    padding-left: 2rem;
+    font-size: medium;
+    font-weight: 400;
+}
+.options{
+    grid-column: 23/span 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    gap: 0.6rem;
+}
 .logo {
     height: 3rem;
     aspect-ratio: 1 / 1;
@@ -55,7 +82,7 @@ header {
 
 .user {
     grid-column: 21/span 3;
-    display: grid;
+    display: none;
     grid-template-columns: repeat(5, 1fr);
     color: white;
     background-image: linear-gradient(135deg, lightblue, #3d99a9, var(--stockley-deep-blue));
@@ -65,15 +92,16 @@ header {
     min-width: 7rem;
 }
 .user-initial{
-    grid-column: 1/span 2;
+    
     padding: 0.2rem;
     text-align: center;
-    background-color: dimgray;
+    background-color: var(--stockley-teal);
     border-radius: 50%;
     aspect-ratio: 1/1;
     vertical-align: middle;
     width: 2rem;
     scale: 0.7;
+    color: var(--teal-80);
     
 }
 .user-name{
