@@ -142,20 +142,160 @@ Authorization: Bearer <token>
 ]
 ```
 
-## Health Check
+## Stores
 
-### Root Endpoint
+### Create Store
 
-Check if the API is running.
+Create a new store. The authenticated user automatically becomes the owner.
 
 ```http
-GET /
+POST /stores/
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "Main Warehouse",
+  "description": "Primary storage facility",
+  "location": "123 Main St, City, State"
+}
 ```
 
 **Response (200):**
 ```json
 {
-  "message": "Welcome to Stockley!"
+  "id": 1,
+  "name": "Main Warehouse",
+  "description": "Primary storage facility",
+  "location": "123 Main St, City, State",
+  "members": [
+    {
+      "id": 1,
+      "role": "owner",
+      "created_at": "2024-02-01T10:00:00Z",
+      "user": {
+        "id": 1,
+        "username": "storeowner",
+        "full_name": "Store Owner",
+        "email": "owner@example.com",
+        "created_at": "2024-02-01T09:00:00Z",
+        "role": "regular"
+      }
+    }
+  ]
+}
+```
+
+### Get All Stores
+
+Retrieve a list of all stores.
+
+```http
+GET /stores/
+Authorization: Bearer <token>
+```
+
+**Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "name": "Main Warehouse",
+    "description": "Primary storage facility",
+    "location": "123 Main St, City, State",
+    "members": [
+      {
+        "id": 1,
+        "role": "owner",
+        "created_at": "2024-02-01T10:00:00Z",
+        "user": {
+          "id": 1,
+          "username": "storeowner",
+          "full_name": "Store Owner",
+          "email": "owner@example.com",
+          "created_at": "2024-02-01T09:00:00Z",
+          "role": "regular"
+        }
+      }
+    ]
+  }
+]
+```
+
+### Add Store Member
+
+Add a new member to an existing store. Only store owners can add members.
+
+```http
+POST /stores/add-member
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "store_id": 1,
+  "new_member_username": "newstaff",
+  "role": "staff"
+}
+```
+
+Or using email:
+
+```json
+{
+  "store_id": 1,
+  "new_member_email": "staff@example.com",
+  "role": "staff"
+}
+```
+
+**Response (200):**
+```json
+{
+  "id": 1,
+  "name": "Main Warehouse",
+  "description": "Primary storage facility",
+  "location": "123 Main St, City, State",
+  "members": [
+    {
+      "id": 1,
+      "role": "owner",
+      "created_at": "2024-02-01T10:00:00Z",
+      "user": {
+        "id": 1,
+        "username": "storeowner",
+        "full_name": "Store Owner",
+        "email": "owner@example.com",
+        "created_at": "2024-02-01T09:00:00Z",
+        "role": "regular"
+      }
+    },
+    {
+      "id": 2,
+      "role": "staff",
+      "created_at": "2024-02-01T11:00:00Z",
+      "user": {
+        "id": 2,
+        "username": "newstaff",
+        "full_name": "New Staff",
+        "email": "staff@example.com",
+        "created_at": "2024-02-01T10:30:00Z",
+        "role": "regular"
+      }
+    }
+  ]
+}
+```
+
+**Response (400 - Unauthorized):**
+```json
+{
+  "detail": "Only store owners can add members"
+}
+```
+
+**Response (400 - Already Member):**
+```json
+{
+  "detail": "User newstaff is already a member"
 }
 ```
 
@@ -210,6 +350,53 @@ interface UserCreate {
 interface Token {
   token: string;
   token_type: string;
+}
+```
+
+### Store
+
+```typescript
+interface Store {
+  id?: number;
+  name: string;
+  description?: string;
+  location?: string;
+  members?: StoreMemberReadWithoutStore[];
+}
+```
+
+### StoreCreate
+
+```typescript
+interface StoreCreate {
+  name: string;
+  description?: string;
+  location?: string;
+}
+```
+
+### StoreMember
+
+```typescript
+interface StoreMember {
+  id: number;
+  role: "owner" | "staff";
+  user_id: number;
+  created_at: string; // ISO 8601 datetime
+  user: User;
+  store?: Store;
+}
+```
+
+### StoreMemberReadWithoutStore
+
+```typescript
+interface StoreMemberReadWithoutStore {
+  id: number;
+  role: "owner" | "staff";
+  user_id: number;
+  created_at: string; // ISO 8601 datetime
+  user: User;
 }
 ```
 
@@ -321,13 +508,6 @@ print(user.json())
 ## Future Endpoints
 
 The following endpoints are planned for future releases:
-
-### Stores
-- `GET /stores/` - List user's stores
-- `POST /stores/` - Create store
-- `GET /stores/{id}` - Get store details
-- `PUT /stores/{id}` - Update store
-- `DELETE /stores/{id}` - Delete store
 
 ### Products
 - `GET /products/` - List products

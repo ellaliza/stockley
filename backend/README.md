@@ -37,6 +37,14 @@ The API will be available at `http://localhost:8000`
 | PUT | `/auth/users/me` | Update current user | Yes |
 | GET | `/auth/users` | List all users | Yes |
 
+### Stores (`/stores`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/stores/` | Create a new store | Yes |
+| GET | `/stores/` | Get all stores | Yes |
+| POST | `/stores/add-member` | Add member to store | Yes |
+
 ### Health Check
 
 | Method | Endpoint | Description | Auth Required |
@@ -83,6 +91,7 @@ CREATE TABLE user (
 ```sql
 CREATE TABLE storemember (
     id INTEGER PRIMARY KEY,
+    store_id INTEGER REFERENCES store(id),
     role TEXT NOT NULL,
     user_id INTEGER REFERENCES user(id),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -96,15 +105,6 @@ CREATE TABLE store (
     name TEXT NOT NULL,
     description TEXT,
     location TEXT
-);
-```
-
-#### Store-Member Links Table
-```sql
-CREATE TABLE store_to_storemember_link (
-    storemember_id INTEGER REFERENCES storemember(id),
-    store_id INTEGER REFERENCES store(id),
-    PRIMARY KEY (storemember_id, store_id)
 );
 ```
 
@@ -199,8 +199,10 @@ When the server is running, visit:
 backend/
 ├── app/
 │   ├── api/v1/          # API route handlers
-│   │   └── auth.py      # Authentication endpoints
+│   │   ├── auth.py      # Authentication endpoints
+│   │   └── stores.py    # Store management endpoints
 │   ├── core/            # Core configuration
+│   │   └── exceptions.py # Custom exceptions
 │   ├── db/              # Database setup
 │   │   └── session.py   # Database session management
 │   ├── models/          # SQLModel database models
@@ -214,7 +216,9 @@ backend/
 │   │   ├── stores.py    # Store schemas
 │   │   └── users.py     # User schemas
 │   └── services/        # Business logic services
-│       └── auth.py      # Authentication services
+│       ├── auth.py      # Authentication services
+│       ├── stores.py    # Store management services
+│       └── users.py     # User services
 ├── requirements.txt     # Python dependencies
 └── README.md           # This file
 ```

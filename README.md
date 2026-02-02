@@ -93,10 +93,10 @@ Once the backend is running, visit `http://localhost:8000/docs` for interactive 
 - `GET /auth/users/me` - Get current user info
 - `PUT /auth/users/me` - Update current user
 
-#### Stores (Planned)
-- `GET /stores/` - List user's stores
+#### Stores
+- `GET /stores/` - List all stores
 - `POST /stores/` - Create new store
-- `GET /stores/{id}` - Get store details
+- `POST /stores/add-member` - Add member to store
 
 #### Products (Planned)
 - `GET /products/` - List products
@@ -166,7 +166,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🎯 Roadmap
 
 - [x] User authentication system
-- [ ] Store management
+- [x] Store management
 - [ ] Product inventory
 - [ ] Stock movement tracking
 - [ ] Dashboard with analytics

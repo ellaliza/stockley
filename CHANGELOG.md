@@ -15,9 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQLite database with SQLModel
 - CORS configuration for cross-origin requests
 - Basic project documentation
+- Store management system with create, list, and add member functionality
+- Store and user role-based access control (owner/staff roles)
+- Custom exception handling for store operations
+- Updated database schema for store-member relationships
+
+### Changed
+- Refactored user and store models to use direct foreign keys instead of link tables
+- Updated authentication endpoints to use dependency injection for current user
+- Improved schema definitions with proper Pydantic model configurations
 
 ### Planned
-- Store/warehouse management
 - Product inventory tracking
 - Stock movement recording
 - User roles and permissions
