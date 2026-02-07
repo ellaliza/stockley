@@ -8,31 +8,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initial project setup with FastAPI backend and Vue.js frontend
-- User authentication system with JWT tokens
-- User registration and login endpoints
-- Password hashing with Argon2
-- SQLite database with SQLModel
-- CORS configuration for cross-origin requests
-- Basic project documentation
-- Store management system with create, list, and add member functionality
-- Store and user role-based access control (owner/staff roles)
-- Custom exception handling for store operations
-- Updated database schema for store-member relationships
+- Product management endpoints: create, list, get single product, bulk create
+- Stock operations: `stock-out` (sell) and `stock-in` (restock) endpoints with authorization
+- `ProductBulkCreate` schema for batch product creation
+- `ProductReadWithStockMovement` schema for products with stock history
+- `StockMovement` and `StockMovementTypes` (IN, OUT, RESERVE) for audit trail
+- Comprehensive docstrings and inline comments for product schemas, services, and endpoints
+- Updated API documentation with product endpoints and data models
+- Product authorization checks to ensure store membership
+- Field aliases (camelCase JSON, snake_case Python) for all product schemas
 
 ### Changed
-- Refactored user and store models to use direct foreign keys instead of link tables
-- Updated authentication endpoints to use dependency injection for current user
-- Improved schema definitions with proper Pydantic model configurations
+- **Fixed**: `bulk-create` endpoint now correctly checks authorization against `product_list.store_id` (was referencing undefined `product.store_id`)
+- **Fixed**: `restock_product` endpoint now correctly increments stock (was incorrectly decrementing)
+- **Enhanced**: Added `current_user` parameter to stock operation endpoints (`stock-out`, `stock-in`) for authorization
+- Improved `ProductUpdate` schema documentation regarding optional fields and `exclude_unset` usage
+- Added type hints and docstrings to service functions for better developer clarity
+- Product service functions now include notes about audit trail integration
 
 ### Planned
+- Dashboard with analytics and low-stock alerts
+- Stock movement history API and filtering
+- User roles and permissions (admin, manager, staff)
+- Mobile-responsive frontend
+- Email notifications for low stock events
 - Product inventory tracking
 - Stock movement recording
 - User roles and permissions
 - Dashboard with analytics
 - Mobile-responsive frontend
 
-## [0.1.0] - 2024-02-01
+## [0.1.0] - 2026-02-01
 
 ### Added
 - Project initialization

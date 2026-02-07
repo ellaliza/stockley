@@ -299,6 +299,95 @@ Or using email:
 }
 ```
 
+## Products
+
+### Get Product
+
+Retrieve a single product by its id for a store.
+
+```http
+GET /products/{store_id}/{product_id}
+Authorization: Bearer <token>
+```
+
+**Response (200)**
+```json
+{
+  "productId": 1,
+  "productName": "Widget",
+  "initialStock": 10,
+  "currentStock": 7,
+  "minimumStockLevel": 5,
+  "reservedStock": 0,
+  "storeId": 1
+}
+```
+
+### List Products
+
+Retrieve all products for a store.
+
+```http
+GET /products/{store_id}
+Authorization: Bearer <token>
+```
+
+**Response (200)**
+```json
+[ { ProductRead }, { ProductRead }, ... ]
+```
+
+### Create Product
+
+Create a single product for a store.
+
+```http
+POST /products/
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "productName": "Widget",
+  "initialStock": 10,
+  "currentStock": 10,
+  "minimumStockLevel": 5,
+  "reservedStock": 0,
+  "storeId": 1
+}
+```
+
+**Response (200)**
+```json
+{ ProductRead }
+```
+
+### Bulk Create Products
+
+Create multiple products in a single request for a store.
+
+```http
+POST /products/bulk-create/
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "storeId": 1,
+  "products": [ { ProductBase }, { ProductBase } ]
+}
+```
+
+**Response (200)**
+```json
+[ { ProductRead }, { ProductRead } ]
+```
+
+### Stock Operations
+
+- `POST /products/stock-out/{store_id}/{product_id}`: reduce product stock (sell)
+- `POST /products/stock-in/{store_id}/{product_id}`: increase product stock (restock)
+
+Both endpoints expect an optional query parameter `quantity` (default `1`) and require authentication.
+
 ## Error Responses
 
 ### Common Error Format

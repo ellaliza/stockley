@@ -38,7 +38,7 @@ class StoreReadWithProducts(StoreRead):
 class StoreReadWithMembers(StoreRead):
     """Schema for reading stores with their member information."""
     members: List["StoreMemberReadWithoutStore"] = Field(default_factory=list)
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True} 
 
 
 class StoreReadWithProductsAndMembers(StoreReadWithMembers):

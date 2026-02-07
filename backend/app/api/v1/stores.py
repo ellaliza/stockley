@@ -7,9 +7,9 @@ Stores can be created, listed, and members can be added with role-based permissi
 
 from fastapi import APIRouter, HTTPException, status
 from app.db.session import SessionDep
-from app.services.stores import create_store, get_stores, add_new_storemember, get_store
+from app.services.stores import create_store, get_stores, add_new_storemember, get_store, get_store_with_products
 from app.services.users import CurrentUserDep
-from app.schemas.stores import StoreReadWithMembers, StoreCreate
+from app.schemas.stores import StoreReadWithMembers, StoreCreate, StoreReadWithProducts
 from app.core import exceptions
 from app.models.users import StoreRoles
 from app.services.auth import get_user_by_email, get_user_by_username
@@ -64,6 +64,14 @@ async def get_all_stores(session: SessionDep, current_user: CurrentUserDep):
     try:
         stores = get_stores(session)
         return stores
+    except Exception as e:
+        return HTTPException(status.HTTP_400_BAD_REQUEST, f"An error occured: {str(e)}")
+
+@router.get("/{store_id}", response_model=StoreReadWithProducts | None)
+async def get_store(session: SessionDep, current_user: CurrentUserDep, store_id : int):
+    try:
+        store = get_store_with_products(session, store_id, current_user)
+        return store
     except Exception as e:
         return HTTPException(status.HTTP_400_BAD_REQUEST, f"An error occured: {str(e)}")
 

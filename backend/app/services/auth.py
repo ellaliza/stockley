@@ -120,11 +120,12 @@ def create_user(session: Session, user_data: dict) -> UserRead:
     Returns:
         UserRead: The created user information (excluding sensitive data).
     """
+
     db_user = User(**user_data)
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
-    user = UserRead(**db_user.model_dump())
+    user = UserRead.model_validate(db_user)
     return user
 
 def authenticate_user(session: Session, username: str, password: str, email: str | None = None):
@@ -200,6 +201,7 @@ async def get_current_user(token: TokenDep, session: SessionDep):
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print("PAYLOAD:", payload)
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception

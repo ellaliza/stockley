@@ -78,6 +78,7 @@ async def register(session: SessionDep, user: UserCreate = Depends(UserCreate.as
     Raises:
         HTTPException: 400 if username already exists.
     """
+    
     db_user = get_user_by_username(session, user.username)
     if db_user:
         raise HTTPException(
@@ -93,6 +94,7 @@ async def register(session: SessionDep, user: UserCreate = Depends(UserCreate.as
         "full_name": user.full_name,
         "hashed_password": hashed_password,
     }
+    
 
     db_user = create_user(session, user_data)
     return db_user

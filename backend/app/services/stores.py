@@ -12,6 +12,7 @@ from app.db.session import SessionDep
 from sqlmodel import Session
 from app.services.users import CurrentUserDep
 from app.schemas.users import StoreMemberRead, StoreMemberWrite
+from app.schemas.stores import StoreReadWithProducts
 from sqlmodel import select
 from app.core import exceptions
 
@@ -195,3 +196,24 @@ def get_store(session: Session, store_id: int) -> Store:
     stmt = select(Store).where(Store.id == store_id)
     store = session.exec(stmt).first()
     return store
+
+
+def get_store_with_products(session: Session, store_id: int, current_user: User) -> StoreReadWithProducts | None:
+    """
+    Retrieve a single store by its ID.
+
+    Args:
+        session (Session): Database session for querying.
+        store_id (int): The unique identifier of the store.
+
+    Returns:
+        Store: The store object if found, None otherwise.
+    """
+    stmt = select(Store).where(Store.id == store_id)
+    store = session.exec(stmt).first()
+    for membership in current_user.store_memberships:
+        if membership.store_id == store_id:
+            return StoreReadWithProducts.model_validate(store)
+        else:
+            return None
+

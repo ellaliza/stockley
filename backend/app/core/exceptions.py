@@ -37,4 +37,6 @@ def bad_request_exception(error: str):
         HTTPException: A FastAPI HTTP exception with status 400.
     """
     return HTTPException(status.HTTP_400_BAD_REQUEST, f"An error occured: {error}")
-    
+
+class StoreNotFoundError(Exception):
+    pass

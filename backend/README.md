@@ -45,6 +45,17 @@ The API will be available at `http://localhost:8000`
 | GET | `/stores/` | Get all stores | Yes |
 | POST | `/stores/add-member` | Add member to store | Yes |
 
+### Products (`/products`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/products/{store_id}` | List products for a store | Yes |
+| GET | `/products/{store_id}/{product_id}` | Retrieve single product | Yes |
+| POST | `/products/` | Create a product | Yes |
+| POST | `/products/bulk-create/` | Bulk create products | Yes |
+| POST | `/products/stock-out/{store_id}/{product_id}` | Reduce stock (sell) | Yes |
+| POST | `/products/stock-in/{store_id}/{product_id}` | Increase stock (restock) | Yes |
+
 ### Health Check
 
 | Method | Endpoint | Description | Auth Required |
