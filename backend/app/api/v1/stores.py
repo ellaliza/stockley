@@ -5,9 +5,9 @@ This module provides REST API endpoints for managing stores in the inventory sys
 Stores can be created, listed, and members can be added with role-based permissions.
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Response
 from app.db.session import SessionDep
-from app.services.stores import create_store, get_stores, add_new_storemember, get_store, get_store_with_products
+from app.services.stores import create_store, get_stores, add_new_storemember, get_store, get_store_with_products, delete_a_store
 from app.services.users import CurrentUserDep
 from app.schemas.stores import StoreReadWithMembers, StoreCreate, StoreReadWithProducts
 from app.core import exceptions
@@ -69,12 +69,54 @@ async def get_all_stores(session: SessionDep, current_user: CurrentUserDep):
 
 @router.get("/{store_id}", response_model=StoreReadWithProducts | None)
 async def get_store(session: SessionDep, current_user: CurrentUserDep, store_id : int):
+    """
+    Retrieve a specific store by ID with its products.
+
+    This endpoint returns a store and all of its associated products.
+    Requires authentication but no specific permissions.
+
+    Args:
+        session (SessionDep): Database session dependency.
+        current_user (CurrentUserDep): The currently authenticated user (for auth check).
+        store_id (int): The ID of the store to retrieve.
+
+    Returns:
+        StoreReadWithProducts | None: The store with its products, or None if not found.
+
+    Raises:
+        HTTPException: If retrieval fails due to database errors.
+    """
     try:
         store = get_store_with_products(session, store_id, current_user)
         return store
     except Exception as e:
         return HTTPException(status.HTTP_400_BAD_REQUEST, f"An error occured: {str(e)}")
 
+@router.delete("/{store_id}")
+async def delete_store(session: SessionDep, current_user: CurrentUserDep, store_id : int):
+    """
+    Delete a store. Only the store owner can delete it.
+
+    This endpoint allows store owners to delete their stores.
+    All associated data (products, members) will be removed.
+
+    Args:
+        session (SessionDep): Database session dependency.
+        current_user (CurrentUserDep): The currently authenticated user (must be store owner).
+        store_id (int): The ID of the store to delete.
+
+    Returns:
+        dict: Confirmation message with success status.
+
+    Raises:
+        HTTPException: If deletion fails due to permission issues or database errors.
+    """
+    try:
+        delete_a_store(session, store_id, user_id = current_user.id)
+        
+        return {"success": True, "message": "Store Deleted"}
+    except Exception as e:
+        return HTTPException(status.HTTP_400_BAD_REQUEST, f"An error occured: {str(e)}")
 
 @router.post("/add-member")
 async def add_a_new_storemember(
@@ -120,4 +162,3 @@ async def add_a_new_storemember(
         return updated_store
     except Exception as e:
         return exceptions.bad_request_exception(f"{str(e)}")
-    

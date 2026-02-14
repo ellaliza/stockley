@@ -221,6 +221,61 @@ Authorization: Bearer <token>
 ]
 ```
 
+### Get Store
+
+Retrieve a specific store by ID with its products.
+
+```http
+GET /stores/{store_id}
+Authorization: Bearer <token>
+```
+
+**Response (200):**
+```json
+{
+  "id": 1,
+  "name": "Main Warehouse",
+  "description": "Primary storage facility",
+  "location": "123 Main St, City, State",
+  "products": [
+    {
+      "productId": 1,
+      "productName": "Widget",
+      "sku": "WDGTS42681",
+      "initialStock": 10,
+      "currentStock": 7,
+      "minimumStockLevel": 5,
+      "reservedStock": 0,
+      "storeId": 1
+    }
+  ]
+}
+```
+
+### Delete Store
+
+Delete a store. Only the store owner can delete the store.
+
+```http
+DELETE /stores/{store_id}
+Authorization: Bearer <token>
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Store Deleted"
+}
+```
+
+**Response (400 - Unauthorized):**
+```json
+{
+  "detail": "Only store owners can delete the store"
+}
+```
+
 ### Add Store Member
 
 Add a new member to an existing store. Only store owners can add members.
@@ -315,6 +370,7 @@ Authorization: Bearer <token>
 {
   "productId": 1,
   "productName": "Widget",
+  "sku": "WDGTS42681",
   "initialStock": 10,
   "currentStock": 7,
   "minimumStockLevel": 5,
@@ -339,7 +395,7 @@ Authorization: Bearer <token>
 
 ### Create Product
 
-Create a single product for a store.
+Create a single product for a store. The SKU (Stock Keeping Unit) is automatically generated if not provided.
 
 ```http
 POST /products/
@@ -358,17 +414,60 @@ Content-Type: application/json
 
 **Response (200)**
 ```json
-{ ProductRead }
-```
-
-### Bulk Create Products
-
-Create multiple products in a single request for a store.
+{
+  "productId": 1,
+  "productName": "Widget",
+  "sku": "WDGTS42681",
+  "initialStock": 10,
+  "currentStock": 10, SKUs are automatically generated for each product.
 
 ```http
 POST /products/bulk-create/
 Authorization: Bearer <token>
 Content-Type: application/json
+
+{
+  "storeId": 1,
+  "products": [
+    {
+      "productName": "Widget",
+      "initialStock": 10,
+      "currentStock": 10,
+      "minimumStockLevel": 5
+    },
+    {
+      "productName": "Gadget",
+      "initialStock": 20,
+      "currentStock": 20,
+      "minimumStockLevel": 10
+    }
+  ]
+}
+```
+
+**Response (200)**
+```json
+[
+  {
+    "productId": 1,
+    "productName": "Widget",
+    "sku": "WDGTS42681",
+    "initialStock": 10,
+    "currentStock": 10,
+    "minimumStockLevel": 5,
+    "reservedStock": 0,
+    "storeId": 1
+  },
+  {
+    "productId": 2,
+    "productName": "Gadget",
+    "sku": "GDGTX89204",
+    "initialStock": 20,
+    "currentStock": 20,
+    "minimumStockLevel": 10,
+    "reservedStock": 0,
+    "storeId": 1
+  }
 
 {
   "storeId": 1,
@@ -442,12 +541,20 @@ interface Token {
 }
 ```
 
-### Store
+### Product
 
 ```typescript
-interface Store {
-  id?: number;
-  name: string;
+interface Product {
+  productId: number;
+  productName: string;
+  sku: string; // Auto-generated unique Stock Keeping Unit
+  initialStock: number;
+  currentStock: number;
+  minimumStockLevel: number;
+  reservedStock: number;
+  storeId: number;
+}
+```
   description?: string;
   location?: string;
   members?: StoreMemberReadWithoutStore[];

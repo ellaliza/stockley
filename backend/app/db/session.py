@@ -18,7 +18,7 @@ sqlite = "sqlite://"
 # Create SQLAlchemy engine with SQLite
 # echo=True enables SQL query logging for development
 # check_same_thread=False allows the engine to be used in FastAPI's async context
-engine = create_engine(sqlite, echo=True, connect_args={"check_same_thread": False})
+engine = create_engine(sqlite, connect_args={"check_same_thread": False})
 
 def create_db_and_tables():
     """

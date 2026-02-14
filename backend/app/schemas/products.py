@@ -14,13 +14,14 @@ from app.models.products import StockMovementTypes
 class ProductBase(BaseModel):
     """Base product fields shared by create/read/update schemas.
 
+    - `sku`: unique stock keeping unit identifier (auto-generated)
     - `product_name` (alias: `productName`): human readable name
     - `initial_stock` (alias: `initialStock`): quantity when product was created
     - `current_stock` (alias: `currentStock`): current available quantity
     - `minimum_stock_level` (alias: `minimumStockLevel`): low-stock threshold
     - `reserved_stock` (alias: `reservedStock`): quantity reserved for pending orders
     """
-
+    sku : Optional[str] = Field(default=None, description="SKU")
     product_name: str = Field(..., alias="productName", description="Product Name")
     initial_stock: int = Field(..., alias="initialStock", description="Initial quantity of product in stock.")
     current_stock: int = Field(..., alias="currentStock", description="Current quantity of product in stock.")

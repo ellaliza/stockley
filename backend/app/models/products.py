@@ -25,6 +25,7 @@ class Product(SQLModel, table=True):
     Fields:
     - `product_id`: auto-incrementing primary key
     - `product_name`: human-readable product name
+    - `sku`: unique stock keeping unit identifier (auto-generated)
     - `initial_stock`: quantity when the product was created
     - `current_stock`: current available quantity
     - `minimum_stock_level`: low-stock threshold (default: 5)
@@ -43,7 +44,7 @@ class Product(SQLModel, table=True):
     current_stock: int
     minimum_stock_level: int = SQLField(default=5)
     reserved_stock: int = SQLField(default=0)
-
+    sku: str = SQLField(unique=True)
     # Foreign key to the store this product belongs to
     store_id: int = SQLField(foreign_key="store.id")
 

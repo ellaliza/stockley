@@ -3,7 +3,7 @@ from app.models.products import Product, StockMovement
 from app.schemas.products import ProductBase, ProductRead, StockMovementCreate, StockMovementTypes, ProductUpdate
 from app.models.users import User
 from typing import Optional, List, Union
-
+from app.utils.products import generate_sku
 
 def add_product_to_store(session: Session, product: ProductBase, store_id: int) -> ProductRead:
     """Create a new `Product` row and add an initial stock movement.
@@ -21,7 +21,8 @@ def add_product_to_store(session: Session, product: ProductBase, store_id: int) 
 
     # Convert Pydantic model to plain dict (this uses field names)
     product_data = product.model_dump()
-
+    product_data["sku"] = generate_sku()
+    product_data.setdefault("store_id", store_id)
     # Persist the product
     db_product = Product(**product_data)
     session.add(db_product)
@@ -91,3 +92,5 @@ def update_product(session: Session, product: ProductUpdate) -> Optional[Product
     session.refresh(db_product)
 
     return db_product
+
+

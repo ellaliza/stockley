@@ -54,6 +54,7 @@ async def create_bulk_products(product_list: ProductBulkCreate, session: Session
     """
     # Use the store id provided with the bulk payload for the membership check
     user_is_member = is_user_in_store(session, current_user.id, product_list.store_id)
+    print(product_list)
 
     if not user_is_member:
         return HTTPException(
@@ -61,14 +62,17 @@ async def create_bulk_products(product_list: ProductBulkCreate, session: Session
             detail="Not authorized to add products to this store",
         )
 
+    store_id = product_list.store_id
     products: list[ProductRead] = []
     for product in product_list.products:
         raw_product = ProductBase.model_validate(product)
-
-        prod = add_product_to_store(session, raw_product, product_list.store_id)
+        print(store_id)
+        prod = add_product_to_store(session, raw_product, store_id)
         products.append(prod)
 
     return products
+
+
 
 @router.post("/stock-out/{store_id}/{product_id}", response_model=ProductRead)
 async def sell_product(

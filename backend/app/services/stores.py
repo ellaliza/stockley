@@ -13,10 +13,9 @@ from sqlmodel import Session
 from app.services.users import CurrentUserDep
 from app.schemas.users import StoreMemberRead, StoreMemberWrite
 from app.schemas.stores import StoreReadWithProducts
-from sqlmodel import select
+from sqlmodel import select, delete
 from app.core import exceptions
-
-
+from app.models.products import Product, StockMovement
 def create_store(
         store_data: StoreCreate,
         session: Session,
@@ -217,3 +216,28 @@ def get_store_with_products(session: Session, store_id: int, current_user: User)
         else:
             return None
 
+def delete_a_store(session: Session, store_id: int, user_id: int):
+    stmt = select(Store).where(Store.id == store_id)
+    store = session.exec(stmt).first()
+
+    stmt = select(StoreMember).where(
+        StoreMember.user_id == user_id,
+        StoreMember.store_id == store_id
+    )
+    storemember = session.exec(stmt).one()
+
+    # Get all product IDs for this store
+    product_ids_stmt = select(Product.product_id).where(Product.store_id == store_id)
+    
+    # Delete stock movements for those products
+    stmt = delete(StockMovement).where(StockMovement.product_id.in_(product_ids_stmt))
+    session.exec(stmt)
+
+    # Delete all products in the store
+    stmt = delete(Product).where(Product.store_id == store_id)
+    session.exec(stmt)
+
+    session.delete(storemember)
+    session.delete(store)
+ 
+    session.commit()
